@@ -5,50 +5,48 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ScreenNames} from '../constants/screenNames';
+import {Article} from '../types/Article';
+import {useArticles} from '../hooks/useArticles';
+import {GenericNavigation} from '../types/navigation';
 
-type RootStackParamList = {
-  [ScreenNames.List]: undefined;
-  [ScreenNames.ListItem]: {id: number; title: string};
-};
-
-type ListScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  ScreenNames.List
->;
-
-interface ListItem {
-  id: number;
-  title: string;
-}
-
-const mockData: ListItem[] = [
-  {id: 1, title: 'First Item'},
-  {id: 2, title: 'Second Item'},
-  {id: 3, title: 'Third Item'},
-  {id: 4, title: 'Fourth Item'},
-  {id: 5, title: 'Fifth Item'},
-];
 
 const ListScreen = () => {
-  const navigation = useNavigation<ListScreenNavigationProp>();
+  const navigation = useNavigation<GenericNavigation<ScreenNames.List>>();
+  const {articles, loading, error} = useArticles();
 
-  const renderItem = ({item}: {item: ListItem}) => (
+  const renderItem = ({item}: {item: Article}) => (
     <TouchableOpacity
       style={styles.item}
-      onPress={() => navigation.navigate(ScreenNames.ListItem, item)}>
+      onPress={() => navigation.navigate(ScreenNames.ListItem, {id: item.id})}>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.arrow}>›</Text>
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={mockData}
+        data={articles}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
@@ -60,6 +58,12 @@ const ListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#f5f5f5',
   },
   listContent: {
@@ -86,10 +90,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     color: '#333',
+    flex: 1,
+    marginRight: 10,
   },
   arrow: {
     fontSize: 24,
     color: '#999',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#ff0000',
+    textAlign: 'center',
+    marginHorizontal: 20,
   },
 });
 

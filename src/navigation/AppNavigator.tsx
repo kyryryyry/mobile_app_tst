@@ -7,7 +7,7 @@ import {ScreenNames} from '../constants/screenNames';
 
 export type RootStackParamList = {
   [ScreenNames.List]: undefined;
-  [ScreenNames.ListItem]: {id: number; title: string};
+  [ScreenNames.ListItem]: {id: number};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

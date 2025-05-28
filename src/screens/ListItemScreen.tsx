@@ -1,33 +1,54 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {RouteProp, useRoute} from '@react-navigation/native';
+import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
+import {useRoute} from '@react-navigation/native';
 import {ScreenNames} from '../constants/screenNames';
-
-type RootStackParamList = {
-  [ScreenNames.List]: undefined;
-  [ScreenNames.ListItem]: {id: number; title: string};
-};
-
-type ListItemScreenRouteProp = RouteProp<RootStackParamList, ScreenNames.ListItem>;
+import {useArticle} from '../hooks/useArticle';
+import {GenericRoute} from '../types/navigation';
 
 const ListItemScreen = () => {
-  const route = useRoute<ListItemScreenRouteProp>();
-  const {id, title} = route.params;
+  const route = useRoute<GenericRoute<ScreenNames.ListItem>>();
+  const {id} = route.params;
+  const {article, loading, error} = useArticle(id);
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+
+  if (!article) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Article not found</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.label}>ID:</Text>
-        <Text style={styles.value}>{id}</Text>
+        <Text style={styles.value}>{article.id}</Text>
+
+        <Text style={styles.label}>User ID:</Text>
+        <Text style={styles.value}>{article.userId}</Text>
 
         <Text style={styles.label}>Title:</Text>
-        <Text style={styles.value}>{title}</Text>
+        <Text style={styles.value}>{article.title}</Text>
 
+        <Text style={styles.label}>Body:</Text>
         <View style={styles.description}>
-          <Text style={styles.descriptionText}>
-            This is a detailed view for the selected item. In a real app, this
-            would contain more information fetched from an API or local storage.
-          </Text>
+          <Text style={styles.descriptionText}>{article.body}</Text>
         </View>
       </View>
     </View>
@@ -37,6 +58,12 @@ const ListItemScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#f5f5f5',
   },
   content: {
@@ -74,6 +101,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     lineHeight: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#ff0000',
+    textAlign: 'center',
+    marginHorizontal: 20,
   },
 });
 
