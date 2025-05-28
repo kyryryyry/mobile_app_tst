@@ -73,3 +73,7 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Android signing and sensitive files
+android/gradle.properties
+android/app/my-release-key.keystore

@@ -13,10 +13,9 @@ import {Article} from '../types/Article';
 import {useArticles} from '../hooks/useArticles';
 import {GenericNavigation} from '../types/navigation';
 
-
 const ListScreen = () => {
   const navigation = useNavigation<GenericNavigation<ScreenNames.List>>();
-  const {articles, loading, error} = useArticles();
+  const {articles, loading, error, isOffline} = useArticles();
 
   const renderItem = ({item}: {item: Article}) => (
     <TouchableOpacity
@@ -45,6 +44,11 @@ const ListScreen = () => {
 
   return (
     <View style={styles.container}>
+      {isOffline && (
+        <View style={styles.offlineBanner}>
+          <Text style={styles.offlineText}>Offline Mode</Text>
+        </View>
+      )}
       <FlatList
         data={articles}
         renderItem={renderItem}
@@ -69,6 +73,17 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 16,
+  },
+  offlineBanner: {
+    backgroundColor: '#FF9800',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  offlineText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
   },
   item: {
     backgroundColor: 'white',
