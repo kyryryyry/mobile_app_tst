@@ -48,6 +48,7 @@ const ListScreen = () => {
       <FlatList
         data={articles}
         renderItem={renderItem}
+        initialNumToRender={12}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
       />

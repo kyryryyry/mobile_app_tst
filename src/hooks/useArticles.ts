@@ -1,34 +1,26 @@
-import {useState, useEffect} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {Article} from '../types/Article';
 
+const fetchArticles = async (): Promise<Article[]> => {
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  const data: Article[] = await response.json();
+  return data;
+};
+
 export const useArticles = () => {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {data: articles = [], isLoading: loading, error} = useQuery({
+    queryKey: ['articles'],
+    queryFn: fetchArticles,
+  });
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data: Article[] = await response.json();
-        setArticles(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        setArticles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
-
-  return {articles, loading, error};
+  return {
+    articles,
+    loading,
+    error: error instanceof Error ? error.message : null,
+  };
 };
