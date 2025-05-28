@@ -78,18 +78,27 @@ export function useOfflineQuery<TData>({
     finalData = cachedData ?? emptyData;
   } else {
     // When connected, prefer fetched data if available, otherwise cached
-    finalData = fetchedData ?? cachedData ?? emptyData;
+    if (fetchedData) {
+      finalData = fetchedData;
+    } else if (cachedData) {
+      finalData = cachedData;
+    } else {
+      finalData = emptyData;
+    }
+  }
+
+  // Determine error message
+  let errorMessage: string | null = null;
+  if (networkStatus === 'disconnected' && !hasData(cachedData)) {
+    errorMessage = offlineErrorMessage;
+  } else if (error instanceof Error) {
+    errorMessage = error.message;
   }
 
   return {
     data: finalData,
     loading: networkStatus === 'connected' && isLoading && !hasData(cachedData),
-    error:
-      networkStatus === 'disconnected' && !hasData(cachedData)
-        ? offlineErrorMessage
-        : error instanceof Error
-        ? error.message
-        : null,
+    error: errorMessage,
     isOffline: networkStatus === 'disconnected',
   };
 }

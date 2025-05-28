@@ -1,6 +1,7 @@
 import {useEffect} from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import {useAppStateStore, NetworkStatus} from '../store/appStateStore';
+import {getNetworkStatus} from '../utils/networkUtils';
 
 let unsubscribe: (() => void) | null = null;
 
@@ -9,24 +10,12 @@ const initNetworkMonitor = () => {
     const setNetworkStatus = useAppStateStore.getState().setNetworkStatus;
 
     unsubscribe = NetInfo.addEventListener(state => {
-      const connected = state.isConnected;
-      const status: NetworkStatus =
-        connected === null
-          ? 'unknown'
-          : connected
-          ? 'connected'
-          : 'disconnected';
+      const status = getNetworkStatus(state.isConnected);
       setNetworkStatus(status);
     });
 
     NetInfo.fetch().then(state => {
-      const connected = state.isConnected;
-      const status: NetworkStatus =
-        connected === null
-          ? 'unknown'
-          : connected
-          ? 'connected'
-          : 'disconnected';
+      const status = getNetworkStatus(state.isConnected);
       setNetworkStatus(status);
     });
   }
