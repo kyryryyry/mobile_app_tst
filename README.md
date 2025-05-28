@@ -101,3 +101,9 @@ npx react-native run-ios
 - ✅ Data caching with 30-second TTL
 - ✅ Network status indicator
 - ✅ Loading states and error handling
+
+## Thoughts
+
+- For extended offline capabilities, instead of using local storage, we should utilize a proper database like SQLite or Realm.
+- For the API layer, instead of using fetch, I’d prefer to extend it into a full class based on Axios with interceptors.
+ 
